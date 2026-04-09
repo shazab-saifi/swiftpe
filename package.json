@@ -1,5 +1,5 @@
 {
-  "name": "phonepe",
+  "name": "swiftpe",
   "private": true,
   "scripts": {
     "build": "turbo run build",
