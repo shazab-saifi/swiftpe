@@ -26,11 +26,5 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "prettier-plugin-tailwindcss": "^0.7.2"
-  },
-  "lint-staged": {
-    "*.{js,jsx,ts,tsx,md,mdx,json,css}": [
-      "bun run lint --",
-      "bun run format --"
-    ]
   }
 }
