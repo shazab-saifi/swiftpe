@@ -3,7 +3,11 @@
   "module": "index.ts",
   "type": "module",
   "private": true,
+  "scripts": {
+    "lint": "eslint"
+  },
   "devDependencies": {
+    "@repo/eslint-config": "workspace:*",
     "@types/bun": "latest"
   },
   "peerDependencies": {

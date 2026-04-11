@@ -10,7 +10,7 @@
   },
   "devDependencies": {
     "prettier": "^3.7.4",
-    "turbo": "^2.9.5",
+    "turbo": "^2.9.6",
     "typescript": "5.9.2"
   },
   "engines": {
@@ -20,5 +20,8 @@
   "workspaces": [
     "apps/*",
     "packages/*"
-  ]
+  ],
+  "dependencies": {
+    "prettier-plugin-tailwindcss": "^0.7.2"
+  }
 }

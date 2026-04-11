@@ -1,0 +1,8 @@
+.husky
+.next
+.vscode
+.turbo
+dist
+node_modules
+public
+bun.lock
