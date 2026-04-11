@@ -1,0 +1,24 @@
+{
+  "name": "@repo/db",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "lint": "eslint --fix"
+  },
+  "exports": {
+    "./models": "./models/index.ts",
+    "./connect": "./index.ts"
+  },
+  "types": "./models/index.ts",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@repo/eslint-config": "workspace:*"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "mongoose": "^9.4.1"
+  }
+}
