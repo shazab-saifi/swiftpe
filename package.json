@@ -26,16 +26,5 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "prettier-plugin-tailwindcss": "^0.7.2"
-  },
-  "lint-staged": {
-    "packages/**/*.{js,jsx,ts,tsx,md,mdx,json,css}": [
-      "eslint --fix"
-    ],
-    "apps/**/*.{js,jsx,ts,tsx,md,mdx,json,css}": [
-      "eslint --fix"
-    ],
-    "*.{js,jsx,ts,tsx,md,mdx,json,css}": [
-      "prettier --write"
-    ]
   }
 }
