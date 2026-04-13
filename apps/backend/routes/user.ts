@@ -17,7 +17,7 @@ userRouter.post("/signup", async (req: Request, res: Response) => {
     const { username, password, lastName, firstName } = result.data;
 
     const existingUser = await UserModel.findOne({
-      username: username,
+      username,
     });
 
     if (existingUser) {
@@ -31,7 +31,7 @@ userRouter.post("/signup", async (req: Request, res: Response) => {
       lastName,
       password: hashedPassword,
     });
-    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET!);
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!);
 
     res.json({ msg: "Signup Successful!", token });
   } catch (error) {
@@ -42,6 +42,42 @@ userRouter.post("/signup", async (req: Request, res: Response) => {
   }
 });
 
-userRouter.post("/signin", (req: Request, res: Response) => {
+userRouter.post("/signin", async (req: Request, res: Response) => {
   const result = signinSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({ error: result.error.issues });
+  }
+
+  try {
+    const { username, password } = result.data;
+
+    const existingUser = await UserModel.findOne({
+      username,
+    });
+
+    if (!existingUser) {
+      return res
+        .status(404)
+        .json({ error: "User with this username doesn't exists!" });
+    }
+
+    const comparePassword = bcrypt.compareSync(password, existingUser.password);
+
+    if (!comparePassword) {
+      return res.json(401).json({ error: "Incorrect Credentials!" });
+    }
+
+    const token = jwt.sign(
+      { userId: existingUser._id },
+      process.env.JWT_SECRET!
+    );
+
+    res.json({ token });
+  } catch (error) {
+    console.log("Error in signin endpoint: ", error);
+    res
+      .status(500)
+      .json({ error: "Internal server error, Please try again later!" });
+  }
 });
