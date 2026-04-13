@@ -1,8 +1,13 @@
 import express, { type Request, type Response } from "express";
-import { signinSchema, signupSchema } from "../validation/user_schema";
+import {
+  signinSchema,
+  signupSchema,
+  updateInfoSchema,
+} from "../validation/user_schema";
 import { UserModel } from "@repo/db/models";
 import jwt from "jsonwebtoken";
 import bcrypt from "bcrypt";
+import { authMiddleware } from "../src/middleware";
 
 export const userRouter = express.Router();
 
@@ -76,6 +81,30 @@ userRouter.post("/signin", async (req: Request, res: Response) => {
     res.json({ token });
   } catch (error) {
     console.log("Error in signin endpoint: ", error);
+    res
+      .status(500)
+      .json({ error: "Internal server error, Please try again later!" });
+  }
+});
+
+userRouter.put("/", authMiddleware, async (req: Request, res: Response) => {
+  const result = updateInfoSchema.safeParse(req.body);
+
+  if (!result.success) {
+    return res.status(400).json({ error: result.error.issues });
+  }
+
+  try {
+    await UserModel.updateOne(
+      {
+        _id: req.userId,
+      },
+      req.body
+    );
+
+    res.json({ msg: "Updated Successfully!" });
+  } catch (error) {
+    console.log("Error in / put endpoint: ", error);
     res
       .status(500)
       .json({ error: "Internal server error, Please try again later!" });

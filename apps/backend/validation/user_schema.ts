@@ -12,4 +12,6 @@ export const signinSchema = signupSchema.pick({
   password: true,
 });
 
+export const updateInfoSchema = signupSchema.partial();
+
 export type SignupInput = z.infer<typeof signupSchema>;
