@@ -110,3 +110,38 @@ userRouter.put("/", authMiddleware, async (req: Request, res: Response) => {
       .json({ error: "Internal server error, Please try again later!" });
   }
 });
+
+userRouter.get("/bulk", async (req: Request, res: Response) => {
+  const filter = req.query.filter || "";
+
+  try {
+    const users = await UserModel.find({
+      $or: [
+        {
+          firstName: {
+            $regex: filter,
+          },
+        },
+        {
+          lastName: {
+            $regex: filter,
+          },
+        },
+      ],
+    } as any);
+
+    res.json({
+      user: users.map((user) => ({
+        username: user.username,
+        password: user.password,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      })),
+    });
+  } catch (error) {
+    console.log("Error in user/bulk endpoint: ", error);
+    res
+      .status(500)
+      .json({ error: "Internal server error, Please try again later!" });
+  }
+});
