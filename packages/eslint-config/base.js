@@ -19,6 +19,7 @@ export const config = [
     },
     rules: {
       "turbo/no-undeclared-env-vars": "error",
+      "@typescript-eslint/no-namespace": "off",
     },
   },
   {
