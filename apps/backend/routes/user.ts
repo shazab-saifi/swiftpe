@@ -125,16 +125,16 @@ userRouter.get("/bulk", async (req: Request, res: Response) => {
       $or: [
         {
           firstName: {
-            $regex: filter,
+            $regex: filter as string,
           },
         },
         {
           lastName: {
-            $regex: filter,
+            $regex: filter as string,
           },
         },
       ],
-    } as any);
+    });
 
     res.json({
       user: users.map((user) => ({
