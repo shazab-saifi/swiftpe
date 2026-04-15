@@ -1,0 +1,30 @@
+services:
+  mongo:
+    image: mongo
+    container_name: swiftpedb
+    ports:
+      - "27017:27017"
+    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
+    volumes:
+      - swiftpevol:/data/db
+  backend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.backend
+      target: development
+    ports:
+      - "4000:4000"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - mongo
+  frontend:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.frontend
+      target: development
+    ports:
+      - "3000:3000"
+volumes:
+  swiftpevol:
