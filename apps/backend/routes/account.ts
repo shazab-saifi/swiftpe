@@ -1,5 +1,5 @@
 import express, { type Request, type Response } from "express";
-import { authMiddleware } from "./middleware";
+import { authMiddleware } from "../src/middleware";
 import { AccountModel } from "@repo/db/models";
 import { mongoose } from "@repo/db/connect";
 
@@ -30,9 +30,9 @@ accountRouter.post(
   "/transfer",
   authMiddleware,
   async (req: Request, res: Response) => {
-    try {
-      const session = await mongoose.startSession();
+    const session = await mongoose.startSession();
 
+    try {
       session.startTransaction();
       const { amount, to } = req.body;
 
@@ -73,6 +73,7 @@ accountRouter.post(
         msg: "Transaction Successful",
       });
     } catch (error) {
+      session.abortTransaction();
       console.log("Error in account/transfer endpoint: ", error);
       res
         .status(500)
