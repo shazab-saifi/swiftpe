@@ -6,17 +6,18 @@ COPY package.json bun.lock turbo.json ./
 COPY apps/frontend/package.json apps/frontend/package.json
 COPY packages/ui/package.json packages/ui/package.json
 COPY packages/eslint-config/package.json packages/eslint-config/package.json
-RUN bun install --frozen-lockfile
+COPY packages/typescript-config/package.json packages/typescript-config/package.json
+RUN bun install
 
 FROM deps AS dev
 COPY . .
 ENV NODE_ENV=development
-CMD [ "bun", "run", "dev" ]
+CMD [ "bun", "run", "frontend:dev" ]
 
 FROM deps AS builder
 COPY . .
 ENV NODE_ENV=production
-RUN bun run --cwd apps/frontend build
+RUN bun run frontend:build
 
 FROM oven/bun:1-slim AS runner
 WORKDIR /app
@@ -32,4 +33,4 @@ RUN bun install --production
 
 EXPOSE 3000
 
-CMD ["bun", "run", "start"]
+CMD ["bun", "run", "frontend:start"]

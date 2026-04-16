@@ -1,30 +1,42 @@
 services:
   mongo:
+    container_name: mongo
     image: mongo
-    container_name: swiftpedb
-    ports:
-      - "27017:27017"
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     volumes:
-      - swiftpevol:/data/db
+      - data:/data/db
+      - ./scripts/rs-init.sh:/scripts/rs-init.sh
+    ports:
+      - 27021:27017
+    restart: always
+    entrypoint: ["/usr/bin/mongod", "--bind_ip_all", "--replSet", "dbrs"]
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mongosh --quiet --eval \"try { quit(db.adminCommand({ ping: 1 }).ok ? 0 : 1) } catch (e) { quit(1) }\"",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
   backend:
     build:
       context: .
       dockerfile: docker/Dockerfile.backend
-      target: development
+      target: dev
     ports:
       - "4000:4000"
-    environment:
-      - JWT_SECRET=${JWT_SECRET}
-      - DATABASE_URL=${DATABASE_URL}
+    env_file:
+      - ./apps/backend/.env
     depends_on:
-      - mongo
+      mongo:
+        condition: service_healthy
   frontend:
     build:
       context: .
       dockerfile: docker/Dockerfile.frontend
-      target: development
+      target: dev
     ports:
       - "3000:3000"
 volumes:
-  swiftpevol:
+  data:

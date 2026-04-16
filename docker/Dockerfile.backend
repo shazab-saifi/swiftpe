@@ -1,24 +1,24 @@
 FROM oven/bun:1 AS base
 WORKDIR /app
 
-FROM base as deps
+FROM base AS deps
 COPY package.json bun.lock turbo.json ./
 COPY apps/backend/package.json apps/backend/package.json
 COPY packages/db/package.json packages/db/package.json
 COPY packages/eslint-config/package.json packages/eslint-config/package.json
-RUN bun install --frozen-lockfile
+RUN bun install
 
-FROM deps as dev
+FROM deps AS dev
 COPY . .
 ENV NODE_ENV=development
-CMD [ "bun", "run", "dev" ]
+CMD [ "bun", "run", "backend:dev" ]
 
-FROM deps as builder
+FROM deps AS builder
 COPY . .
 ENV NODE_ENV=production
-RUN bun run --cwd apps/backend build
+RUN bun run backend:build
 
-FROM oven/bun:1-slim as runner
+FROM oven/bun:1-slim AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
@@ -31,4 +31,4 @@ RUN bun run install --production
 
 EXPOSE 4000
 
-CMD [ "bun", "run", "start" ]
+CMD [ "bun", "run", "backend:start" ]
