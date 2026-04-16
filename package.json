@@ -7,7 +7,13 @@
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",
-    "prepare": "husky"
+    "prepare": "husky",
+    "backend:dev": "bun run --cwd apps/backend dev",
+    "backend:build": "bun run --cwd apps/backend build",
+    "backend:start": "bun run --cwd apps/backend start",
+    "frontend:dev": "bun run --cwd apps/frontend dev",
+    "frontend:build": "bun run --cwd apps/frontend build",
+    "frontend:start": "bun run --cwd apps/frontend start"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
