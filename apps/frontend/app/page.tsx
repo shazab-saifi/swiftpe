@@ -3,19 +3,97 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
+type DashboardUser = {
+  _id: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+};
+
 export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [users, setUsers] = useState<DashboardUser[]>([]);
+  const [balance, setBalance] = useState<number | null>(null);
+  const [dashboardError, setDashboardError] = useState<string | null>(null);
+  const [isDashboardLoading, setIsDashboardLoading] = useState(false);
 
   useEffect(() => {
-    setIsSignedIn(Boolean(window.localStorage.getItem("token")));
+    const token = window.localStorage.getItem("token");
+    setIsSignedIn(Boolean(token));
     setIsHydrated(true);
+
+    if (!token) {
+      return;
+    }
+
+    const loadDashboard = async () => {
+      setIsDashboardLoading(true);
+      setDashboardError(null);
+
+      try {
+        const [usersResponse, balanceResponse] = await Promise.all([
+          fetch("http://localhost:4000/api/v1/user/users"),
+          fetch("http://localhost:4000/api/v1/account/balance", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }),
+        ]);
+
+        const usersData = await usersResponse.json().catch(() => null);
+        const balanceData = await balanceResponse.json().catch(() => null);
+
+        if (!usersResponse.ok) {
+          throw new Error(
+            typeof usersData?.error === "string"
+              ? usersData.error
+              : "Could not load users. Please refresh and try again."
+          );
+        }
+
+        if (!balanceResponse.ok) {
+          throw new Error(
+            typeof balanceData?.error === "string"
+              ? balanceData.error
+              : "Could not load your balance. Please refresh and try again."
+          );
+        }
+
+        setUsers(Array.isArray(usersData?.users) ? usersData.users : []);
+        setBalance(
+          typeof balanceData?.balance === "number" ? balanceData.balance : null
+        );
+      } catch (error) {
+        setDashboardError(
+          error instanceof Error
+            ? error.message
+            : "Could not load the dashboard. Please try again."
+        );
+      } finally {
+        setIsDashboardLoading(false);
+      }
+    };
+
+    void loadDashboard();
   }, []);
 
   const handleSignOut = () => {
     window.localStorage.removeItem("token");
     setIsSignedIn(false);
+    setUsers([]);
+    setBalance(null);
+    setDashboardError(null);
   };
+
+  const formattedBalance =
+    typeof balance === "number"
+      ? new Intl.NumberFormat("en-IN", {
+          style: "currency",
+          currency: "INR",
+          maximumFractionDigits: 0,
+        }).format(balance)
+      : "Unavailable";
 
   return (
     <>
@@ -74,45 +152,128 @@ export default function Home() {
             ) : null}
           </header>
 
-          <section className="flex flex-1 items-center">
-            <div className="max-w-3xl space-y-6">
-              <p className="text-sm font-semibold tracking-[0.24em] text-slate-500 uppercase">
-                Payments Dashboard
-              </p>
-              <h1 className="text-4xl font-semibold tracking-tight text-balance text-slate-950 sm:text-5xl">
-                Move money faster with a clean account workspace.
-              </h1>
-              <p className="max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
-                Sign up to create your account, manage balances, and send money
-                from one place. Sign in if you already have access.
-              </p>
-              <div className="grid gap-4 pt-4 sm:grid-cols-3">
-                <div className="rounded-3xl border border-black/8 bg-white p-5">
-                  <h2 className="text-lg font-semibold text-slate-950">
-                    Fast Onboarding
-                  </h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Create an account in minutes and start using the dashboard.
+          <section className="flex flex-1 items-center py-10">
+            {isSignedIn ? (
+              <div className="w-full space-y-8">
+                <div className="space-y-4">
+                  <p className="text-sm font-semibold tracking-[0.24em] text-slate-500 uppercase">
+                    Dashboard
+                  </p>
+                  <h1 className="text-4xl font-semibold tracking-tight text-balance text-slate-950 sm:text-5xl">
+                    Track your balance and review all users.
+                  </h1>
+                  <p className="max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+                    Your account summary and the current user list are available
+                    below.
                   </p>
                 </div>
-                <div className="rounded-3xl border border-black/8 bg-white p-5">
-                  <h2 className="text-lg font-semibold text-slate-950">
-                    Simple Transfers
-                  </h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Keep account actions clear with a focused payment flow.
-                  </p>
-                </div>
-                <div className="rounded-3xl border border-black/8 bg-white p-5">
-                  <h2 className="text-lg font-semibold text-slate-950">
-                    Secure Access
-                  </h2>
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Store your session token locally after signup or signin.
-                  </p>
+
+                <div className="grid gap-4 lg:grid-cols-[0.8fr_1.2fr]">
+                  <section className="h-fit rounded-3xl border border-black/8 bg-white p-6">
+                    <p className="text-sm font-semibold tracking-[0.2em] text-slate-500 uppercase">
+                      Current Balance
+                    </p>
+                    <p className="mt-4 text-4xl font-semibold tracking-tight text-slate-950">
+                      {formattedBalance}
+                    </p>
+                    <p className="mt-3 text-sm leading-6 text-slate-600">
+                      This is the latest available balance from your account.
+                    </p>
+                  </section>
+
+                  <section className="rounded-3xl border border-black/8 bg-white p-6">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <h2 className="text-2xl font-semibold tracking-tight text-balance text-slate-950">
+                          All Users
+                        </h2>
+                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                          Review every user currently stored in the database.
+                        </p>
+                      </div>
+                      <p className="text-sm font-medium text-slate-500">
+                        {users.length} users
+                      </p>
+                    </div>
+
+                    <div aria-live="polite" className="mt-6">
+                      {isDashboardLoading ? (
+                        <p className="text-sm text-slate-600">Loading…</p>
+                      ) : null}
+                      {dashboardError ? (
+                        <p className="text-sm break-words text-rose-600">
+                          {dashboardError}
+                        </p>
+                      ) : null}
+                    </div>
+
+                    {!isDashboardLoading && !dashboardError ? (
+                      users.length > 0 ? (
+                        <div className="mt-6 grid gap-3">
+                          {users.map((user) => (
+                            <article
+                              key={user._id}
+                              className="rounded-3xl border border-black/8 bg-slate-50 p-4"
+                            >
+                              <h3 className="text-base font-semibold break-words text-slate-950">
+                                {user.firstName} {user.lastName}
+                              </h3>
+                              <p className="mt-1 text-sm break-words text-slate-600">
+                                {user.username}
+                              </p>
+                            </article>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="mt-6 text-sm text-slate-600">
+                          No users are available yet.
+                        </p>
+                      )
+                    ) : null}
+                  </section>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="max-w-3xl space-y-6">
+                <p className="text-sm font-semibold tracking-[0.24em] text-slate-500 uppercase">
+                  Payments Dashboard
+                </p>
+                <h1 className="text-4xl font-semibold tracking-tight text-balance text-slate-950 sm:text-5xl">
+                  Move money faster with a clean account workspace.
+                </h1>
+                <p className="max-w-2xl text-base leading-7 text-slate-600 sm:text-lg">
+                  Sign up to create your account, manage balances, and send
+                  money from one place. Sign in if you already have access.
+                </p>
+                <div className="grid gap-4 pt-4 sm:grid-cols-3">
+                  <div className="rounded-3xl border border-black/8 bg-white p-5">
+                    <h2 className="text-lg font-semibold text-slate-950">
+                      Fast Onboarding
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      Create an account in minutes and start using the
+                      dashboard.
+                    </p>
+                  </div>
+                  <div className="rounded-3xl border border-black/8 bg-white p-5">
+                    <h2 className="text-lg font-semibold text-slate-950">
+                      Simple Transfers
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      Keep account actions clear with a focused payment flow.
+                    </p>
+                  </div>
+                  <div className="rounded-3xl border border-black/8 bg-white p-5">
+                    <h2 className="text-lg font-semibold text-slate-950">
+                      Secure Access
+                    </h2>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      Store your session token locally after signup or signin.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </section>
         </div>
       </main>

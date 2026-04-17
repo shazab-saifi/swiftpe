@@ -119,7 +119,7 @@ userRouter.put("/", authMiddleware, async (req: Request, res: Response) => {
 
 userRouter.get("/users", async (_req: Request, res: Response) => {
   try {
-    const users = await UserModel.find({}, { password: 0 });
+    const users = await UserModel.find();
 
     res.json({
       users,
