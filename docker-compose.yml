@@ -28,6 +28,20 @@ services:
       - "4000:4000"
     env_file:
       - ./apps/backend/.env
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/backend
+          target: /app/apps/backend
+
+        - action: rebuild
+          path: ./apps/backend/package.json
+
+        - action: rebuild
+          path: ./package.json
+
+        - action: rebuild
+          path: ./bun.lock
     depends_on:
       mongo:
         condition: service_healthy
