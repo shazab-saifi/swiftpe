@@ -2,6 +2,7 @@
 set -euo pipefail
 
 docker compose up -d
+docker compose watch
 
 until docker exec mongo mongosh --quiet --eval "db.adminCommand({ ping: 1 }).ok" >/dev/null 2>&1; do
   sleep 2

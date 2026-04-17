@@ -13,7 +13,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "mongosh --quiet --eval \"try { quit(db.adminCommand({ ping: 1 }).ok ? 0 : 1) } catch (e) { quit(1) }\"",
+          'mongosh --quiet --eval "try { quit(db.adminCommand({ ping: 1 }).ok ? 0 : 1) } catch (e) { quit(1) }"',
         ]
       interval: 5s
       timeout: 5s
@@ -38,5 +38,19 @@ services:
       target: dev
     ports:
       - "3000:3000"
+    develop:
+      watch:
+        - action: sync
+          path: ./apps/frontend
+          target: /app/apps/frontend
+
+        - action: rebuild
+          path: ./apps/frontend/package.json
+
+        - action: rebuild
+          path: ./package.json
+
+        - action: rebuild
+          path: ./bun.lock
 volumes:
   data:
