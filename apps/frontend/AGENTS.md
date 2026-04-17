@@ -106,6 +106,12 @@ Read files, check against rules below. Output concise but comprehensive—sacrif
 - Avoid unwanted scrollbars: `overflow-x-hidden` on containers, fix content overflow
 - Flex/grid over JS measurement for layout
 
+### Border Radius
+
+- Small interactive controls like buttons, inputs, toggles, and skip links use `16px` radius
+- Larger containers like cards, panels, and form shells use `24px` radius
+- Keep radius scale consistent across pages and shared components
+
 ### Dark Mode & Theming
 
 - `color-scheme: dark` on `<html>` for dark themes (fixes scrollbar, inputs)

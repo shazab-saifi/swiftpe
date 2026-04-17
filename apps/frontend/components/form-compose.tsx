@@ -7,7 +7,7 @@ export function FormCompose({ className, ...props }: FormComposeProps) {
   return (
     <section
       className={cn(
-        "w-full rounded-[2rem] border border-black/10 bg-white/85 p-8 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.4)] backdrop-blur",
+        "w-full rounded-3xl border border-black/10 bg-white/85 p-8 shadow-[0_24px_80px_-32px_rgba(15,23,42,0.4)] backdrop-blur",
         className
       )}
       {...props}
@@ -60,7 +60,7 @@ export const CustomInput = React.forwardRef<
     <input
       ref={ref}
       className={cn(
-        "h-12 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-950 transition outline-none focus:border-slate-400 focus:bg-white focus:ring-4 focus:ring-slate-200/60",
+        "h-12 w-full touch-manipulation rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm text-slate-950 transition-[background-color,border-color,box-shadow,color] outline-none focus-visible:border-slate-400 focus-visible:bg-white focus-visible:ring-4 focus-visible:ring-slate-200/60",
         className
       )}
       {...props}

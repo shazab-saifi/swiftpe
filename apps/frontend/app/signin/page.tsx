@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
@@ -11,16 +12,13 @@ import {
   FormCompose,
   FormHeader,
 } from "@/components/form-compose";
-import { useRouter } from "next/navigation";
 
-type SignupFormValues = {
+type SigninFormValues = {
   email: string;
-  firstName: string;
-  lastName: string;
   password: string;
 };
 
-export default function SignupPage() {
+export default function SigninPage() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
@@ -30,29 +28,25 @@ export default function SignupPage() {
     handleSubmit,
     formState: { errors, isSubmitting },
     reset,
-  } = useForm<SignupFormValues>({
+  } = useForm<SigninFormValues>({
     defaultValues: {
       email: "",
-      firstName: "",
-      lastName: "",
       password: "",
     },
   });
 
-  const onSubmit = async (values: SignupFormValues) => {
+  const onSubmit = async (values: SigninFormValues) => {
     setSubmitError(null);
     setSubmitSuccess(null);
 
     try {
-      const response = await fetch("http://localhost:4000/api/v1/user/signup", {
+      const response = await fetch("http://localhost:4000/api/v1/user/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           username: values.email,
-          firstName: values.firstName.trim(),
-          lastName: values.lastName.trim(),
           password: values.password,
         }),
       });
@@ -63,7 +57,7 @@ export default function SignupPage() {
         const errorMessage =
           typeof data?.error === "string"
             ? data.error
-            : "Signup failed. Please check your details and try again.";
+            : "Sign in failed. Check your email & password and try again.";
 
         setSubmitError(errorMessage);
         return;
@@ -73,7 +67,7 @@ export default function SignupPage() {
         localStorage.setItem("token", data.token);
       }
 
-      setSubmitSuccess(data?.msg ?? "Signup successful.");
+      setSubmitSuccess("Signed in successfully.");
       reset();
       router.push("/");
     } catch {
@@ -98,10 +92,10 @@ export default function SignupPage() {
           <FormCompose>
             <FormHeader>
               <h1 className="text-3xl font-semibold tracking-tight text-balance text-slate-950">
-                Join SwiftPe
+                Sign In to SwiftPe
               </h1>
               <p className="text-sm leading-6 text-slate-600">
-                Enter your details below to create a new account.
+                Enter your account details to continue.
               </p>
             </FormHeader>
 
@@ -128,58 +122,14 @@ export default function SignupPage() {
                 ) : null}
               </Field>
 
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Field>
-                  <FieldLabel htmlFor="firstName">First name</FieldLabel>
-                  <CustomInput
-                    id="firstName"
-                    type="text"
-                    placeholder="John…"
-                    autoComplete="given-name"
-                    aria-invalid={errors.firstName ? "true" : "false"}
-                    {...register("firstName", {
-                      required: "First name is required.",
-                      maxLength: {
-                        value: 50,
-                        message: "First name must be 50 characters or less.",
-                      },
-                    })}
-                  />
-                  {errors.firstName ? (
-                    <FieldMessage>{errors.firstName.message}</FieldMessage>
-                  ) : null}
-                </Field>
-
-                <Field>
-                  <FieldLabel htmlFor="lastName">Last name</FieldLabel>
-                  <CustomInput
-                    id="lastName"
-                    type="text"
-                    placeholder="Doe…"
-                    autoComplete="family-name"
-                    aria-invalid={errors.lastName ? "true" : "false"}
-                    {...register("lastName", {
-                      required: "Last name is required.",
-                      maxLength: {
-                        value: 50,
-                        message: "Last name must be 50 characters or less.",
-                      },
-                    })}
-                  />
-                  {errors.lastName ? (
-                    <FieldMessage>{errors.lastName.message}</FieldMessage>
-                  ) : null}
-                </Field>
-              </div>
-
               <Field>
                 <FieldLabel htmlFor="password">Password</FieldLabel>
                 <div className="relative rounded-2xl focus-within:ring-4 focus-within:ring-slate-200/60">
                   <CustomInput
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="At least 6 characters…"
-                    autoComplete="new-password"
+                    placeholder="Enter your password…"
+                    autoComplete="current-password"
                     aria-invalid={errors.password ? "true" : "false"}
                     className="pr-14"
                     {...register("password", {
@@ -226,17 +176,17 @@ export default function SignupPage() {
                 disabled={isSubmitting}
                 className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-slate-950 px-4 text-sm font-semibold text-white transition-colors hover:bg-slate-800 focus-visible:ring-4 focus-visible:ring-slate-300 focus-visible:outline-none"
               >
-                {isSubmitting ? "Creating Account…" : "Create Account"}
+                {isSubmitting ? "Signing In…" : "Sign In"}
               </button>
             </form>
 
             <p className="mt-6 text-center text-sm text-slate-600">
-              Already have an account?{" "}
+              Need an account?{" "}
               <Link
-                href="/signin"
+                href="/signup"
                 className="font-semibold text-slate-950 underline underline-offset-4"
               >
-                Sign in
+                Create one
               </Link>
             </p>
           </FormCompose>
