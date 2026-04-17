@@ -117,6 +117,21 @@ userRouter.put("/", authMiddleware, async (req: Request, res: Response) => {
   }
 });
 
+userRouter.get("/users", async (_req: Request, res: Response) => {
+  try {
+    const users = await UserModel.find({}, { password: 0 });
+
+    res.json({
+      users,
+    });
+  } catch (error) {
+    console.log("Error in user/users endpoint: ", error);
+    res
+      .status(500)
+      .json({ error: "Internal server error, Please try again later!" });
+  }
+});
+
 userRouter.get("/bulk", async (req: Request, res: Response) => {
   const filter = req.query.filter || "";
 
