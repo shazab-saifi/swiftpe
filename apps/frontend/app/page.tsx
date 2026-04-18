@@ -1,19 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { UsersSection } from "../components/users-section";
 import { useEffect, useState } from "react";
-
-type DashboardUser = {
-  _id: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-};
 
 export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
-  const [users, setUsers] = useState<DashboardUser[]>([]);
   const [balance, setBalance] = useState<number | null>(null);
   const [dashboardError, setDashboardError] = useState<string | null>(null);
   const [isDashboardLoading, setIsDashboardLoading] = useState(false);
@@ -32,25 +25,15 @@ export default function Home() {
       setDashboardError(null);
 
       try {
-        const [usersResponse, balanceResponse] = await Promise.all([
-          fetch("http://localhost:4000/api/v1/user/users"),
-          fetch("http://localhost:4000/api/v1/account/balance", {
+        const balanceResponse = await fetch(
+          "http://localhost:4000/api/v1/account/balance",
+          {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }),
-        ]);
-
-        const usersData = await usersResponse.json().catch(() => null);
+          }
+        );
         const balanceData = await balanceResponse.json().catch(() => null);
-
-        if (!usersResponse.ok) {
-          throw new Error(
-            typeof usersData?.error === "string"
-              ? usersData.error
-              : "Could not load users. Please refresh and try again."
-          );
-        }
 
         if (!balanceResponse.ok) {
           throw new Error(
@@ -60,7 +43,6 @@ export default function Home() {
           );
         }
 
-        setUsers(Array.isArray(usersData?.users) ? usersData.users : []);
         setBalance(
           typeof balanceData?.balance === "number" ? balanceData.balance : null
         );
@@ -81,7 +63,6 @@ export default function Home() {
   const handleSignOut = () => {
     window.localStorage.removeItem("token");
     setIsSignedIn(false);
-    setUsers([]);
     setBalance(null);
     setDashboardError(null);
   };
@@ -152,7 +133,7 @@ export default function Home() {
             ) : null}
           </header>
 
-          <section className="flex flex-1 items-center py-10">
+          <section className="flex flex-1 py-10">
             {isSignedIn ? (
               <div className="w-full space-y-8">
                 <div className="space-y-4">
@@ -179,58 +160,19 @@ export default function Home() {
                     <p className="mt-3 text-sm leading-6 text-slate-600">
                       This is the latest available balance from your account.
                     </p>
-                  </section>
-
-                  <section className="rounded-3xl border border-black/8 bg-white p-6">
-                    <div className="flex items-start justify-between gap-4">
-                      <div className="min-w-0">
-                        <h2 className="text-2xl font-semibold tracking-tight text-balance text-slate-950">
-                          All Users
-                        </h2>
-                        <p className="mt-2 text-sm leading-6 text-slate-600">
-                          Review every user currently stored in the database.
-                        </p>
-                      </div>
-                      <p className="text-sm font-medium text-slate-500">
-                        {users.length} users
-                      </p>
-                    </div>
-
-                    <div aria-live="polite" className="mt-6">
+                    <div aria-live="polite" className="mt-4">
                       {isDashboardLoading ? (
                         <p className="text-sm text-slate-600">Loading…</p>
                       ) : null}
                       {dashboardError ? (
-                        <p className="text-sm break-words text-rose-600">
+                        <p className="text-sm wrap-break-word text-rose-600">
                           {dashboardError}
                         </p>
                       ) : null}
                     </div>
-
-                    {!isDashboardLoading && !dashboardError ? (
-                      users.length > 0 ? (
-                        <div className="mt-6 grid gap-3">
-                          {users.map((user) => (
-                            <article
-                              key={user._id}
-                              className="rounded-3xl border border-black/8 bg-slate-50 p-4"
-                            >
-                              <h3 className="text-base font-semibold break-words text-slate-950">
-                                {user.firstName} {user.lastName}
-                              </h3>
-                              <p className="mt-1 text-sm break-words text-slate-600">
-                                {user.username}
-                              </p>
-                            </article>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="mt-6 text-sm text-slate-600">
-                          No users are available yet.
-                        </p>
-                      )
-                    ) : null}
                   </section>
+
+                  <UsersSection />
                 </div>
               </div>
             ) : (

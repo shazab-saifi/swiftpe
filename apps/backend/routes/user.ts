@@ -153,8 +153,8 @@ userRouter.get("/bulk", async (req: Request, res: Response) => {
 
     res.json({
       user: users.map((user) => ({
+        _id: user._id,
         username: user.username,
-        password: user.password,
         firstName: user.firstName,
         lastName: user.lastName,
       })),
