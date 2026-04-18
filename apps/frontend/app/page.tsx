@@ -11,6 +11,43 @@ export default function Home() {
   const [dashboardError, setDashboardError] = useState<string | null>(null);
   const [isDashboardLoading, setIsDashboardLoading] = useState(false);
 
+  const loadBalance = async (token: string) => {
+    setIsDashboardLoading(true);
+    setDashboardError(null);
+
+    try {
+      const balanceResponse = await fetch(
+        "http://localhost:4000/api/v1/account/balance",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const balanceData = await balanceResponse.json().catch(() => null);
+
+      if (!balanceResponse.ok) {
+        throw new Error(
+          typeof balanceData?.error === "string"
+            ? balanceData.error
+            : "Could not load your balance. Please refresh and try again."
+        );
+      }
+
+      setBalance(
+        typeof balanceData?.balance === "number" ? balanceData.balance : null
+      );
+    } catch (error) {
+      setDashboardError(
+        error instanceof Error
+          ? error.message
+          : "Could not load the dashboard. Please try again."
+      );
+    } finally {
+      setIsDashboardLoading(false);
+    }
+  };
+
   useEffect(() => {
     const token = window.localStorage.getItem("token");
     setIsSignedIn(Boolean(token));
@@ -20,44 +57,7 @@ export default function Home() {
       return;
     }
 
-    const loadDashboard = async () => {
-      setIsDashboardLoading(true);
-      setDashboardError(null);
-
-      try {
-        const balanceResponse = await fetch(
-          "http://localhost:4000/api/v1/account/balance",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const balanceData = await balanceResponse.json().catch(() => null);
-
-        if (!balanceResponse.ok) {
-          throw new Error(
-            typeof balanceData?.error === "string"
-              ? balanceData.error
-              : "Could not load your balance. Please refresh and try again."
-          );
-        }
-
-        setBalance(
-          typeof balanceData?.balance === "number" ? balanceData.balance : null
-        );
-      } catch (error) {
-        setDashboardError(
-          error instanceof Error
-            ? error.message
-            : "Could not load the dashboard. Please try again."
-        );
-      } finally {
-        setIsDashboardLoading(false);
-      }
-    };
-
-    void loadDashboard();
+    void loadBalance(token);
   }, []);
 
   const handleSignOut = () => {
@@ -172,7 +172,17 @@ export default function Home() {
                     </div>
                   </section>
 
-                  <UsersSection />
+                  <UsersSection
+                    onTransferSuccess={async () => {
+                      const token = window.localStorage.getItem("token");
+
+                      if (!token) {
+                        return;
+                      }
+
+                      await loadBalance(token);
+                    }}
+                  />
                 </div>
               </div>
             ) : (
