@@ -18,16 +18,15 @@ COPY . .
 ENV NODE_ENV=production
 RUN bun run backend:build
 
-FROM oven/bun:1-slim AS runner
+FROM oven/bun:1-slim AS prod
 WORKDIR /app
 
 ENV NODE_ENV=production
 ENV PORT=4000
 
-COPY --from=builder app/apps/backend/dist ./dist
-COPY --from=builder app/apps/backend/package.json ./pakcage.json
-
-RUN bun run install --production
+COPY --from=builder app/apps/backend/dist ./apps/backend/dist
+COPY --from=builder app/apps/backend/package.json ./apps/backend/package.json
+COPY --from=builder app/package.json ./package.json
 
 EXPOSE 4000
 

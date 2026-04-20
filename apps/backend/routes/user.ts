@@ -6,7 +6,7 @@ import {
 } from "../validation/user_schema";
 import { AccountModel, UserModel } from "@repo/db/models";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { authMiddleware } from "../src/middleware";
 
 export const userRouter = express.Router();

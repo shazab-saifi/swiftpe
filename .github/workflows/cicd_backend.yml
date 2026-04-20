@@ -26,6 +26,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
+          target: runner
           file: ./docker/Dockerfile.backend
           push: true
           tags: ghcr.io/${{ github.actor }}/backend:${{ github.sha }}
