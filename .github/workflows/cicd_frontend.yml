@@ -30,3 +30,20 @@ jobs:
           target: prod
           push: true
           tags: ghcr.io/${{ github.actor }}/frontend:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH deploy
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /opt/swiftpe
+            export IMAGE_TAG=${{ github.sha }}
+            docker compose pull
+            docker compose up -d
+            docker image prune -f

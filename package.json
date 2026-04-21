@@ -13,7 +13,7 @@
     "backend:start": "bun run --cwd apps/backend start",
     "frontend:dev": "bun run --cwd apps/frontend dev",
     "frontend:build": "bun run --cwd apps/frontend build",
-    "frontend:start": "bun --cwd apps/frontend .next/standalone/server.js"
+    "frontend:start": "bun run --cwd apps/frontend start"
   },
   "devDependencies": {
     "prettier": "^3.7.4",
