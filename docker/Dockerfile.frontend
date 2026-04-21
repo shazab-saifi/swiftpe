@@ -18,6 +18,10 @@ FROM deps AS builder
 COPY . .
 ENV NODE_ENV=production
 RUN bun run frontend:build
+RUN cd apps/frontend && \
+    cp -r public .next/standalone/apps/frontend/ && \
+    cp -r .next/static .next/standalone/apps/frontend/.next/ && \
+    echo "Copied staic and public!"
 
 FROM oven/bun:1-slim AS prod
 WORKDIR /app
