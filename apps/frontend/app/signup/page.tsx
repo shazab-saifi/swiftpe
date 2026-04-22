@@ -11,6 +11,7 @@ import {
   FormCompose,
   FormHeader,
 } from "@/components/form-compose";
+import { apiUrl } from "@/lib/api";
 import { useRouter } from "next/navigation";
 
 type SignupFormValues = {
@@ -44,7 +45,7 @@ export default function SignupPage() {
     setSubmitSuccess(null);
 
     try {
-      const response = await fetch("http://localhost:4000/api/v1/user/signup", {
+      const response = await fetch(apiUrl("/api/v1/user/signup"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

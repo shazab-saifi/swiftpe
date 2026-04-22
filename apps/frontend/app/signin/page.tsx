@@ -12,6 +12,7 @@ import {
   FormCompose,
   FormHeader,
 } from "@/components/form-compose";
+import { apiUrl } from "@/lib/api";
 
 type SigninFormValues = {
   email: string;
@@ -40,7 +41,7 @@ export default function SigninPage() {
     setSubmitSuccess(null);
 
     try {
-      const response = await fetch("http://localhost:4000/api/v1/user/signin", {
+      const response = await fetch(apiUrl("/api/v1/user/signin"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

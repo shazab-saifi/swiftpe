@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { UsersSection } from "../components/users-section";
 import { useEffect, useState } from "react";
+import { apiUrl } from "@/lib/api";
 
 export default function Home() {
   const [isSignedIn, setIsSignedIn] = useState(false);
@@ -16,14 +17,11 @@ export default function Home() {
     setDashboardError(null);
 
     try {
-      const balanceResponse = await fetch(
-        "http://localhost:4000/api/v1/account/balance",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const balanceResponse = await fetch(apiUrl("/api/v1/account/balance"), {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       const balanceData = await balanceResponse.json().catch(() => null);
 
       if (!balanceResponse.ok) {

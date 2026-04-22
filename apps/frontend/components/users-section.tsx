@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { apiUrl } from "@/lib/api";
 import { SendMoneyDialog } from "./send-money-dialog";
 
 type DashboardUser = {
@@ -46,7 +47,7 @@ export function UsersSection({ onTransferSuccess }: UsersSectionProps) {
         params.set("filter", debouncedSearchValue);
 
         const response = await fetch(
-          `http://localhost:4000/api/v1/user/bulk?${params.toString()}`,
+          apiUrl(`/api/v1/user/bulk?${params.toString()}`),
           { signal: controller.signal }
         );
         const data = await response.json().catch(() => null);

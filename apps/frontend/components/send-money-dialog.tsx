@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState, type FormEvent } from "react";
+import { apiUrl } from "@/lib/api";
 
 type DialogUser = {
   _id?: string;
@@ -74,20 +75,17 @@ export function SendMoneyDialog({
     setError(null);
 
     try {
-      const response = await fetch(
-        "http://localhost:4000/api/v1/account/transfer",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            amount: parsedAmount,
-            to: user._id,
-          }),
-        }
-      );
+      const response = await fetch(apiUrl("/api/v1/account/transfer"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount: parsedAmount,
+          to: user._id,
+        }),
+      });
       const data = await response.json().catch(() => null);
 
       if (!response.ok) {
