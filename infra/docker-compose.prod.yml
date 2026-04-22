@@ -1,6 +1,6 @@
 services:
   nginx:
-    image: nginx-alpine
+    image: nginx:alpine
     container_name: webserver
 
     ports:
